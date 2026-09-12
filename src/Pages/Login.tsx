@@ -16,7 +16,7 @@ function Login() {
   const imageRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
