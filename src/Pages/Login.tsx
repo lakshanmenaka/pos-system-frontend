@@ -162,7 +162,7 @@ function Login() {
           <div className="w-full max-w-[390px]">
            
             <div className="mb-10">
-              <h2 className="text-[27px] text-center font-semibold text-red-500 tracking-[-0.5px] text-[#171717]">
+              <h2 className="text-[27px] text-center font-semibold text-black tracking-[-0.5px] text-[#171717]">
                 Welcome Back
               </h2>
 
