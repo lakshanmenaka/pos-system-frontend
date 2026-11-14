@@ -83,10 +83,19 @@ pipeline {
                             ubuntu@172.31.36.57 "
                                 set -e
 
+                                echo 'Pulling latest frontend image...'
+
                                 sudo docker pull \
                                     menakalakshan23/pos-system-frontend:${BUILD_NUMBER}
 
-                                sudo docker rm -f pos-system-frontend || true
+                                echo 'Removing old frontend containers...'
+
+                                sudo docker rm -f \
+                                    pos-system-frontend \
+                                    pos-system-frontend-container \
+                                    2>/dev/null || true
+
+                                echo 'Starting new frontend container...'
 
                                 sudo docker run -d \
                                     --name pos-system-frontend \
