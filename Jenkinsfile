@@ -75,24 +75,9 @@ pipeline {
         }
 
         stage('Deploy to Frontend EC2') {
-            steps {
-                sshagent(credentials: ['frontend-ssh-key']) {
-                    sh '''
-                        IMAGE="menakalakshan23/pos-system-frontend:${BUILD_NUMBER}"
-
-                        ssh -o StrictHostKeyChecking=accept-new \
-                            -o ConnectTimeout=10 \
-                            ubuntu@172.31.36.57 \
-                            "docker pull ${IMAGE} &&
-                             (docker rm -f pos-system-frontend-container || true) &&
-                             docker run -d \
-                                --name pos-system-frontend-container \
-                                --restart unless-stopped \
-                                -p 80:80 \
-                                ${IMAGE}"
-                    '''
-                }
-            }
+            
+                // need script
+            
         }
     }
 }
