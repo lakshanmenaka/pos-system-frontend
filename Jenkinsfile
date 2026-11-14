@@ -24,26 +24,25 @@ pipeline {
             }
         }
 
-        stage('Build Frontend') {
-            steps {
-                withCredentials([
-                    file(credentialsId: 'front-end-env', variable: 'ENV_FILE')
-                ]) {
-                    sh '''
-                        cp "$ENV_FILE" .env
-                        npm ci
-                        npm run build
-                    '''
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                sh '''
-                    docker build \
-                        -t pos-system-frontend:${BUILD_NUMBER} .
-                '''
+                withCredentials([
+                    file(
+                        credentialsId: 'front-end-env',
+                        variable: 'ENV_FILE'
+                    )
+                ]) {
+                    sh '''
+                        set -eu
+
+                        cp "$ENV_FILE" .env.production
+
+                        trap 'rm -f .env.production' EXIT
+
+                        docker build \
+                            -t pos-system-frontend:${BUILD_NUMBER} .
+                    '''
+                }
             }
         }
 
@@ -57,6 +56,8 @@ pipeline {
                     )
                 ]) {
                     sh '''
+                        set -e
+
                         echo "$DOCKERHUB_PASS" | docker login \
                             -u "$DOCKERHUB_USER" \
                             --password-stdin
@@ -75,9 +76,29 @@ pipeline {
         }
 
         stage('Deploy to Frontend EC2') {
-            
-                // need script
-            
+            steps {
+                sshagent(credentials: ['frontend-ssh-key']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=accept-new \
+                            ubuntu@172.31.36.57 "
+                                set -e
+
+                                sudo docker pull \
+                                    menakalakshan23/pos-system-frontend:${BUILD_NUMBER}
+
+                                sudo docker rm -f pos-system-frontend || true
+
+                                sudo docker run -d \
+                                    --name pos-system-frontend \
+                                    --restart unless-stopped \
+                                    -p 80:80 \
+                                    menakalakshan23/pos-system-frontend:${BUILD_NUMBER}
+
+                                echo 'Frontend deployment completed'
+                            "
+                    '''
+                }
+            }
         }
     }
 }
